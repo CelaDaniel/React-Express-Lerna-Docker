@@ -1,0 +1,29 @@
+# Node stage
+FROM node as vite-app
+
+# Assuming the actual path to your app package inside a Lerna monorepo
+WORKDIR /app/packages/app
+COPY ./packages/app .
+
+RUN ["npm", "i"]
+RUN ["npm", "run", "build"]
+
+# Nginx stage
+FROM nginx:alpine
+
+# Preparing nginx directory
+WORKDIR /usr/share/nginx/
+RUN rm -rf html
+RUN mkdir html
+
+# Set the WORKDIR to root
+WORKDIR /
+
+# Copy nginx configuration from the workspace root
+COPY ./packages/app/nginx.conf /etc/nginx/nginx.conf
+
+# Ensure the correct path to the build output of your Vite app
+# Assuming '/app/packages/app/dist' is the build output directory
+COPY --from=vite-app /app/packages/app/dist /usr/share/nginx/html
+
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

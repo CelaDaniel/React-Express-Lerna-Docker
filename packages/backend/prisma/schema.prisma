@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://monsters_user:root@mysql:3306/monsters_db"
+}
+
+model Monster {
+  id         String @id @default(uuid())
+  name       String @unique
+  level      Int
+  species    String
+  subSpecies String
+  imageUrl   String
+}

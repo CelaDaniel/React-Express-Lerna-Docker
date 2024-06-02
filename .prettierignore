@@ -1,0 +1,16 @@
+/uploads/
+/languages/
+logs
+*.log
+**/coverage
+**/node_modules/
+**/dist/
+**/build/
+**/*.env
+src/wp-content/mcloud-view-cache/**
+/config/ssl
+.DS_Store
+.npm
+.eslintcache
+*.tgz
+*.zip

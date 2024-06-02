@@ -1,0 +1,121 @@
+version: "3.9"
+name: ${APP_NAME}
+
+services:
+
+  # React App Service Dev
+  app:
+    platform: linux/amd64
+    container_name: ${APP_NAME}-reactapp-fe
+    image: react-frontend
+    build:
+      context: .
+      dockerfile: ./packages/app/Dockerfile_dev
+    ports:
+      - "3000:3000"
+    restart: always
+    volumes:
+      - "./packages/app:/app"
+      - "/app/node_modules"
+    networks:
+      - backend
+
+  # Express Backend Service
+  backend:
+    platform: linux/amd64
+    container_name: ${APP_NAME}-expressapp-be
+    image: express-backend
+    build:
+      context: .
+      dockerfile: ./packages/backend/Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./packages/backend:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+    networks:
+      - backend
+
+  # Database Service
+  mysql:
+    platform: linux/amd64
+    container_name: ${APP_NAME}-mysql_be
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_MAX_ALLOWED_PACKET: 67108864  # 64M
+      MYSQL_WAIT_TIMEOUT: 28800
+      MYSQL_INTERACTIVE_TIMEOUT: 28800
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backup/mysql:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    networks:
+      - backend
+
+  # Database Management Interface
+  phpmyadmin:
+    platform: linux/amd64
+    container_name: ${APP_NAME}-phpmyadmin_fe
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: ${DB_HOST}
+      PMA_USER: ${DB_USER}
+      PMA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - backend
+    volumes:
+      - ./config/phpmyadmin.ini:/usr/local/etc/php/conf.d/phpmyadmin.ini
+
+  # Portainer Service
+  portainer:
+    platform: linux/amd64
+    container_name: ${APP_NAME}-portainer_fe
+    image: portainer/portainer-ce
+    restart: always
+    command: -H unix:///var/run/docker.sock
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - backend
+
+  # React App Service Build and deploy with Nginx
+  # reactapp:
+  #   platform: linux/amd64
+  #   container_name: ${APP_NAME}-reactapp
+  #   image: react_vite_app_build
+  #   build:
+  #     context: .  # Ensure this points to your project's root
+  #     dockerfile: ./packages/app/Dockerfile_build
+  #   ports:
+  #     - "3000:3000"
+  #   restart: always
+  #   volumes:
+  #     - "./packages/app/nginx.conf://etc/nginx/nginx.conf:ro"
+  #   networks:
+  #     - backend
+
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  portainer_data:

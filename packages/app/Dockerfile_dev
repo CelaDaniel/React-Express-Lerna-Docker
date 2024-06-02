@@ -1,0 +1,14 @@
+# Dockerfile_dev
+FROM node:latest
+
+WORKDIR /app
+
+COPY ./packages/app/package*.json ./
+
+RUN npm install --force
+
+COPY ./packages/app .
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
