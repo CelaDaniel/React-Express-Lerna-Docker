@@ -5,8 +5,8 @@
 		"packages/*"
 	],
 	"scripts": {
-		"start": "sh ./cli/start_docker.sh",
-		"exit": "sh ./cli/exit_docker.sh",
+		"start": "bash ./cli/start_docker.sh",
+		"exit": "bash ./cli/exit_docker.sh",
 		"start:lerna": "lerna run start --parallel",
 		"test": "lerna run test --parallel",
 		"build": "lerna run build --stream",

@@ -18,13 +18,7 @@ or
 npm start logs
 ```
 
-### Step 4: Start Lerna workspaces in parallel
-
-```bash
-npm start
-```
-
-### Step 5: App ports
+### Step 4: App ports
 
 1. Find React App here:
 ```
